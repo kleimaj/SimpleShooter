@@ -21,10 +21,12 @@ AGun::AGun()
 
 void AGun::PullTrigger()
 {
+	// Initiate Muzzle Flash
 	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Mesh, TEXT("MuzzleFlashSocket"));
-
+	// Get Pawn to get the Controller
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	if (OwnerPawn == nullptr) return;
+	// Get Controller to get the PlayerViewPoint
 	AController* OwnerController = OwnerPawn->GetController();
 	if (OwnerController == nullptr) return;
 	// Out Params
@@ -32,14 +34,11 @@ void AGun::PullTrigger()
 	FRotator Rotation;
 	OwnerController->GetPlayerViewPoint(Location, Rotation);
 
-
+	// Line Trace to get the end point of the raycast
 	FVector End = Location + Rotation.Vector() * MaxRange;
-	// TODO LineTrace
-
-	//DrawDebugCamera(GetWorld(), Location, Rotation, 90, 2, FColor::Red, true);
-
 	FHitResult Hit;
 	bool bSuccess = GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECC_GameTraceChannel1);
+
 	if (bSuccess) {
 		FVector ShotDirection = -Rotation.Vector();
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.Location, ShotDirection.Rotation());
