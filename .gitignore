@@ -11,6 +11,7 @@ Saved
 *.xcodeproj
 *.xcworkspace
 *.uasset
+Content/Sandbox_BuiltData.uasset
 Content/Dynamic/Levels/FirstPersonExampleMap_BuiltData.uasset
 .vs/S05_TestingGrounds/v15/ipch/
 .vs/
