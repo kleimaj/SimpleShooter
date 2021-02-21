@@ -7,9 +7,9 @@
 void AShooterAIController::BeginPlay()
 {
 	Super::BeginPlay();
-	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	//APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 
-	SetFocus(PlayerPawn);
+	//SetFocus(PlayerPawn);
 }
 
 // Called every frame
@@ -17,6 +17,15 @@ void AShooterAIController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-	MoveToActor(PlayerPawn, 200);
 
+	// If line of sight, move to actor and set focus
+	// Else, stop moving, clear focus
+	if (LineOfSightTo(PlayerPawn)) {
+		SetFocus(PlayerPawn);
+		MoveToActor(PlayerPawn, AcceptanceRadius);
+	}
+	else {
+		ClearFocus(EAIFocusPriority::Gameplay);
+		StopMovement();
+	}
 }
