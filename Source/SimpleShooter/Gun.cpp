@@ -37,7 +37,10 @@ void AGun::PullTrigger()
 	// Line Trace to get the end point of the raycast
 	FVector End = Location + Rotation.Vector() * MaxRange;
 	FHitResult Hit;
-	bool bSuccess = GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECC_GameTraceChannel1);
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	Params.AddIgnoredActor(GetOwner());
+	bool bSuccess = GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECC_GameTraceChannel1, Params);
 
 	if (bSuccess) {
 		FVector ShotDirection = -Rotation.Vector();
