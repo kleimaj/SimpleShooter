@@ -76,7 +76,7 @@ AController* AGun::GetOwnerController() const
 {
 	// Get Pawn to get the Controller
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
-	if (OwnerPawn == nullptr) return;
+	if (OwnerPawn == nullptr) return nullptr;
 	// Get Controller to get the PlayerViewPoint
 	return OwnerPawn->GetController();
 
