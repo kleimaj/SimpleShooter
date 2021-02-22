@@ -23,27 +23,13 @@ void AGun::PullTrigger()
 {
 	// Initiate Muzzle Flash
 	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Mesh, TEXT("MuzzleFlashSocket"));
-	// Get Pawn to get the Controller
-	APawn* OwnerPawn = Cast<APawn>(GetOwner());
-	if (OwnerPawn == nullptr) return;
-	// Get Controller to get the PlayerViewPoint
-	AController* OwnerController = OwnerPawn->GetController();
-	if (OwnerController == nullptr) return;
-	// Out Params
-	FVector Location;
-	FRotator Rotation;
-	OwnerController->GetPlayerViewPoint(Location, Rotation);
 
-	// Line Trace to get the end point of the raycast
-	FVector End = Location + Rotation.Vector() * MaxRange;
+	// OUT PARAMS
 	FHitResult Hit;
-	FCollisionQueryParams Params;
-	Params.AddIgnoredActor(this);
-	Params.AddIgnoredActor(GetOwner());
-	bool bSuccess = GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECC_GameTraceChannel1, Params);
+	FVector ShotDirection;
 
+	bool bSuccess = GunTrace(Hit, ShotDirection);
 	if (bSuccess) {
-		FVector ShotDirection = -Rotation.Vector();
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.Location, ShotDirection.Rotation());
 		FPointDamageEvent DamageEvent(Damage, Hit, ShotDirection, nullptr);
 		if (Hit.GetActor()) {
@@ -66,3 +52,24 @@ void AGun::Tick(float DeltaTime)
 
 }
 
+bool AGun::GunTrace(FHitResult& Hit, FVector& ShotDirection)
+{
+	// Get Pawn to get the Controller
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	if (OwnerPawn == nullptr) return;
+	// Get Controller to get the PlayerViewPoint
+	AController* OwnerController = OwnerPawn->GetController();
+	if (OwnerController == nullptr) return;
+	// Out Params
+	FVector Location;
+	FRotator Rotation;
+	OwnerController->GetPlayerViewPoint(Location, Rotation);
+	ShotDirection = -Rotation.Vector();
+
+	// Line Trace to get the end point of the raycast
+	FVector End = Location + Rotation.Vector() * MaxRange;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	Params.AddIgnoredActor(GetOwner());
+	return GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECC_GameTraceChannel1, Params);
+}
