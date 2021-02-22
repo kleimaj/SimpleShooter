@@ -5,9 +5,24 @@
 #include "TimerManager.h"
 #include "Blueprint/UserWidget.h"
 
+void AShooterPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	HUD = CreateWidget(this, ReticleClass);
+	if (HUD != nullptr) {
+		HUD->AddToViewport();
+	}
+}
+
 void AShooterPlayerController::GameHasEnded(class AActor* EndGameFocus, bool bIsWinner)
 {
 	Super::GameHasEnded(EndGameFocus, bIsWinner);
+
+	// Remove reticle from viewport
+	if (HUD != nullptr) {
+		HUD->RemoveFromViewport();
+	}
 
 	if (bIsWinner) {
 		UUserWidget* WinScreen = CreateWidget(this, WinScreenClass);
