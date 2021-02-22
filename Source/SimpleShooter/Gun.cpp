@@ -23,17 +23,21 @@ void AGun::PullTrigger()
 {
 	// Initiate Muzzle Flash
 	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Mesh, TEXT("MuzzleFlashSocket"));
-
+	UGameplayStatics::SpawnSoundAttached(MuzzleSound, Mesh, TEXT("MuzzleFlashSocket"));
 	// OUT PARAMS
 	FHitResult Hit;
 	FVector ShotDirection;
 
 	bool bSuccess = GunTrace(Hit, ShotDirection);
 	if (bSuccess) {
+		// Initiate Impact Effect
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.Location, ShotDirection.Rotation());
-		FPointDamageEvent DamageEvent(Damage, Hit, ShotDirection, nullptr);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), ImpactSound, Hit.Location);
 		if (Hit.GetActor()) {
+			// Calculate Damage
+			FPointDamageEvent DamageEvent(Damage, Hit, ShotDirection, nullptr);
 			AController* OwnerController = GetOwnerController();
+			// Apply damage to the Actor who impacted from the Hit
 			Hit.GetActor()->TakeDamage(Damage, DamageEvent, OwnerController, this);
 		}
 	}
