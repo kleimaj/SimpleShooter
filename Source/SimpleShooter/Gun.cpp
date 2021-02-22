@@ -33,6 +33,7 @@ void AGun::PullTrigger()
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactEffect, Hit.Location, ShotDirection.Rotation());
 		FPointDamageEvent DamageEvent(Damage, Hit, ShotDirection, nullptr);
 		if (Hit.GetActor()) {
+			AController* OwnerController = GetOwnerController();
 			Hit.GetActor()->TakeDamage(Damage, DamageEvent, OwnerController, this);
 		}
 	}
@@ -54,12 +55,9 @@ void AGun::Tick(float DeltaTime)
 
 bool AGun::GunTrace(FHitResult& Hit, FVector& ShotDirection)
 {
-	// Get Pawn to get the Controller
-	APawn* OwnerPawn = Cast<APawn>(GetOwner());
-	if (OwnerPawn == nullptr) return;
-	// Get Controller to get the PlayerViewPoint
-	AController* OwnerController = OwnerPawn->GetController();
-	if (OwnerController == nullptr) return;
+	AController* OwnerController = GetOwnerController();
+	if (OwnerController == nullptr) return false;
+
 	// Out Params
 	FVector Location;
 	FRotator Rotation;
@@ -72,4 +70,14 @@ bool AGun::GunTrace(FHitResult& Hit, FVector& ShotDirection)
 	Params.AddIgnoredActor(this);
 	Params.AddIgnoredActor(GetOwner());
 	return GetWorld()->LineTraceSingleByChannel(Hit, Location, End, ECC_GameTraceChannel1, Params);
+}
+
+AController* AGun::GetOwnerController() const
+{
+	// Get Pawn to get the Controller
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	if (OwnerPawn == nullptr) return;
+	// Get Controller to get the PlayerViewPoint
+	return OwnerPawn->GetController();
+
 }
